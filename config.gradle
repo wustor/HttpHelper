@@ -17,7 +17,6 @@ ext {
 
     //Version
     supportLibrary = "23.4.0"
-    tinkerVerison = "1.9.1"
     Dependencies = [
             "V7"                  : "com.android.support:appcompat-v7:23.4.0",
             "constraint"          : "com.android.support.constraint:constraint-layout:1.0.2",

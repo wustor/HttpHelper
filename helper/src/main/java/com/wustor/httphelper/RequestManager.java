@@ -2,7 +2,7 @@ package com.wustor.httphelper;
 
 import android.content.Context;
 
-import com.cmyy.chuangmei.executor.SmartExecutor;
+import com.wustor.httphelper.executor.SmartExecutor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
