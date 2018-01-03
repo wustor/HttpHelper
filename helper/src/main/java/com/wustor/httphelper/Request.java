@@ -1,62 +1,27 @@
 package com.wustor.httphelper;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
-import com.wustor.httphelper.core.RequestTask;
-import com.wustor.httphelper.entities.FileEntity;
-import com.wustor.httphelper.error.AppException;
-import com.wustor.httphelper.executor.SmartExecutor;
-import com.wustor.httphelper.itf.ICallback;
-import com.wustor.httphelper.itf.OnGlobalExceptionListener;
-import com.wustor.httphelper.utils.HintUtils;
+import com.wustor.httphelper.callback.ICallback;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class Request {
-    public ICallback iCallback;
-
-    public Context getContext() {
-        return mContext;
-    }
-
-    public void setContext(Context context) {
-        mContext = context;
-    }
-
-    private Context mContext;
-
-    public boolean isEnableProgressUpdated() {
-        return enableProgressUpdated;
-    }
-
-    public void setEnableProgressUpdated(boolean enableProgressUpdated) {
-        this.enableProgressUpdated = enableProgressUpdated;
-    }
-
-    public boolean enableProgressUpdated = false;
-
-    public boolean isDownLoad() {
-        return isDownLoad;
-    }
-
-    public void setDownLoad(boolean downLoad) {
-        isDownLoad = downLoad;
-    }
-
-    public boolean isDownLoad = false;
-    public OnGlobalExceptionListener onGlobalExceptionListener;
     public String tag;
-    private RequestTask task;
-    public boolean isCompleted;
     private Future mFuture;
+    public String filePath;
+    private Context mContext;
+    private RequestTask task;
+    public ICallback iCallback;
+    public volatile boolean isCompleted;
+    private volatile boolean isDownLoad = false;
     public static final int STATE_UPLOAD = 1;
     public static final int STATE_DOWNLOAD = 2;
-    public String filePath;
     public ArrayList<FileEntity> fileEntities;
 
     public void setCallback(ICallback iCallback) {
@@ -67,9 +32,6 @@ public class Request {
         this.enableProgressUpdated = enable;
     }
 
-    public void setGlobalExceptionListener(OnGlobalExceptionListener onGlobalExceptionListener) {
-        this.onGlobalExceptionListener = onGlobalExceptionListener;
-    }
 
     public void checkIfCancelled() throws AppException {
         if (isCancelled) {
@@ -89,46 +51,91 @@ public class Request {
         this.tag = tag;
     }
 
-    public void execute(Context context, SmartExecutor mExecutors) {
-        if (context instanceof Activity)
-            HintUtils.showDialog(context, "哈哈哈");
+    public void execute(Context context, ThreadPoolExecutor executor) {
         task = new RequestTask(this, context);
-        mFuture = mExecutors.submit(task);
+        mFuture = executor.submit(task);
 
     }
 
-    public void execute(Context context, SmartExecutor mExecutors, boolean isShow) {
+    public void execute(Context context, ThreadPoolExecutor executor, boolean isShow) {
         task = new RequestTask(this, context);
-        mFuture = mExecutors.submit(task);
+        mFuture = executor.submit(task);
 
     }
+
+    public boolean isEnableProgressUpdated() {
+        return enableProgressUpdated;
+    }
+
+    public void setEnableProgressUpdated(boolean enableProgressUpdated) {
+        this.enableProgressUpdated = enableProgressUpdated;
+    }
+
+    public boolean enableProgressUpdated = false;
 
 
     public enum RequestMethod {GET, POST, PUT, DELETE}
 
     public enum RequestTool {OKHTTP, URLCONNECTION}
 
-    public int maxRetryCount = 3;
-    public int maxCount = 3;
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
+    public int maxRetryCount = 0;
+    public int maxCount = 0;
     public String url;
     public String content = "";
     public Map<String, String> headers;
+    public HashMap<String, String> paraMap;
+    public RequestMethod method = RequestMethod.POST;
+    public volatile boolean isCancelled;
 
-    public HashMap<String, String> getParaMap() {
-        return paraMap;
+
+    /**
+     * @param url 请求的url
+     */
+    public Request(String url) {
+        this.url = url;
+        this.method = RequestMethod.POST;
+        initParaMap(null);
     }
 
-    public HashMap<String, String> paraMap;
 
+    /**
+     * @param url     请求url
+     * @param paraMap 请求参数
+     */
+    public Request(String url, HashMap<String, String> paraMap) {
+        this.url = url;
+        this.paraMap = paraMap;
+        this.method = RequestMethod.POST;
+        initParaMap(paraMap);
+    }
 
-    //设置请求参数
-    public void setParamMap(HashMap<String, String> paramMap) {
-        this.paraMap = paramMap;
+    /**
+     * @param url     请求url
+     * @param paraMap 请求参数
+     * @param method  请求方式
+     */
+    public Request(String url, HashMap<String, String> paraMap, RequestMethod method) {
+        this.url = url;
+        this.paraMap = paraMap;
+        this.method = method;
+        initParaMap(paraMap);
+    }
+
+    /**
+     * @param key   header的key
+     * @param value header的value
+     */
+    public void addHeader(String key, String value) {
+        if (headers == null) {
+            headers = new HashMap<>();
+        }
+        headers.put(key, value);
+    }
+
+    /**
+     * @param paramMap 初始化Map参数
+     */
+    private void initParaMap(HashMap<String, String> paramMap) {
         if (paramMap != null && !paramMap.isEmpty()) {
             StringBuilder sb = new StringBuilder();
             for (Map.Entry<String, String> entry : paramMap.entrySet()) {
@@ -141,42 +148,23 @@ public class Request {
     }
 
 
-    public volatile boolean isCancelled;
-    public RequestMethod method;
-    public RequestTool tool;
-
-    public void setTool(RequestTool tool) {
-        this.tool = tool;
+    public Context getContext() {
+        return mContext;
     }
 
-    public Request(String url, RequestMethod method) {
-        this.url = url;
-        this.method = method;
-        this.tool = RequestTool.URLCONNECTION;
+    public void setContext(Context context) {
+        mContext = context;
     }
 
-    public Request(String url, RequestMethod method, RequestTool tool) {
-        this.url = url;
-        this.method = method;
-        this.tool = tool;
+    public HashMap<String, String> getParaMap() {
+        return paraMap;
     }
 
-    public Request(String url) {
-        this.url = url;
-        this.method = RequestMethod.GET;
-        this.tool = RequestTool.URLCONNECTION;
+    public boolean isDownLoad() {
+        return isDownLoad;
     }
 
-    public Request(String url, RequestTool tool) {
-        this.url = url;
-        this.method = RequestMethod.GET;
-        this.tool = tool;
-    }
-
-    public void addHeader(String key, String value) {
-        if (headers == null) {
-            headers = new HashMap<>();
-        }
-        headers.put(key, value);
+    public void setDownLoad(boolean downLoad) {
+        isDownLoad = downLoad;
     }
 }

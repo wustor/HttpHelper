@@ -1,13 +1,12 @@
-package com.wustor.httphelper.core;
+package com.wustor.httphelper.util;
 
 import android.webkit.URLUtil;
 
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.OkUrlFactory;
+import com.wustor.httphelper.AppException;
 import com.wustor.httphelper.Request;
-import com.wustor.httphelper.error.AppException;
-import com.wustor.httphelper.itf.OnProgressUpdatedListener;
-import com.wustor.httphelper.upload.UploadUtil;
+import com.wustor.httphelper.callback.ProgressListener;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -19,10 +18,10 @@ import java.net.URL;
 import java.util.Map;
 
 
-public class OKHttpUrlConnectionUtil {
+public class OKHttpUtil {
     private static OkHttpClient mClient;
 
-    public synchronized static HttpURLConnection execute(Request request, OnProgressUpdatedListener listener) throws AppException {
+    public synchronized static HttpURLConnection execute(Request request, ProgressListener listener) throws AppException {
         if (!URLUtil.isNetworkUrl(request.url)) {
             throw new AppException(AppException.ErrorType.MANUAL,"the url :" + request.url + " is not valid");
         }
@@ -64,7 +63,7 @@ public class OKHttpUrlConnectionUtil {
     }
 
 
-    private static HttpURLConnection post(Request request,OnProgressUpdatedListener listener) throws AppException {
+    private static HttpURLConnection post(Request request,ProgressListener listener) throws AppException {
         HttpURLConnection connection = null;
         OutputStream os = null;
         try {

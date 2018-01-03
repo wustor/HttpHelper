@@ -1,4 +1,4 @@
-package com.wustor.httphelper.entities;
+package com.wustor.httphelper;
 
 public class FileEntity {
 

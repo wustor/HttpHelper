@@ -3,8 +3,7 @@ package com.wustor.httphelper.callback;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.wustor.httphelper.core.AbstractCallback;
-import com.wustor.httphelper.error.AppException;
+import com.wustor.httphelper.AppException;
 
 import java.lang.reflect.ParameterizedType;
 

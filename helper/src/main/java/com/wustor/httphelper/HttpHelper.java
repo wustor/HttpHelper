@@ -1,43 +1,47 @@
 package com.wustor.httphelper;
 
 import android.content.Context;
+import android.text.TextUtils;
 
-import com.wustor.httphelper.executor.SmartExecutor;
+import com.wustor.httphelper.util.ExecutorUtil;
+import com.wustor.httphelper.util.HintUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Created by fatchao
  * 日期  2017-08-10.
  * 邮箱  fat_chao@163.com
  */
-public class RequestManager {
-    private static RequestManager mInstance;
-    private SmartExecutor smallExecutor;
+public class HttpHelper {
+    private ThreadPoolExecutor executor;
+    private volatile static HttpHelper httpHelper;
     private HashMap<String, ArrayList<Request>> mCachedRequest;
 
-    public static RequestManager getInstance() {
-        if (mInstance == null) {
-            mInstance = new RequestManager();
+    private HttpHelper() {
+        mCachedRequest = new HashMap<>();
+        if (executor == null) {
+            executor = ExecutorUtil.createThreadPool();
         }
-        return mInstance;
     }
 
-    private RequestManager() {
-        mCachedRequest = new HashMap<>();
-        //TODO 初始化线程池
-        if (smallExecutor == null) {
-            smallExecutor = new SmartExecutor();
+    public static HttpHelper getInstance() {
+        if (httpHelper == null) {
+            synchronized (HttpHelper.class) {
+                if (httpHelper == null)
+                    httpHelper = new HttpHelper();
+            }
         }
+        return httpHelper;
     }
+
 
     public void performRequest(Context context, Request request) {
-        request.execute(context, smallExecutor);
-        if (request.tag == null) {
-            return;// no need to cache the request
-        }
+        request.execute(context, executor);
+        HintUtils.showDialog(context,"");
         if (!mCachedRequest.containsKey(request.tag)) {
             ArrayList<Request> requests = new ArrayList<>();
             mCachedRequest.put(request.tag, requests);
@@ -45,35 +49,26 @@ public class RequestManager {
         mCachedRequest.get(request.tag).add(request);
     }
 
-    public void performRequest(Context context, Request request,boolean isShow) {
-        request.execute(context, smallExecutor,isShow);
-        if (request.tag == null) {
-            return;// no need to cache the request
-        }
+    public void performRequest(Context context, Request request, boolean isShow) {
+        request.execute(context, executor, isShow);
         if (!mCachedRequest.containsKey(request.tag)) {
             ArrayList<Request> requests = new ArrayList<>();
             mCachedRequest.put(request.tag, requests);
         }
         mCachedRequest.get(request.tag).add(request);
-    }
-
-    public void cancelRequest(String tag) {
-        cancelRequest(tag, false);
     }
 
     /**
-     * @param tag
-     * @param force true cancel task with no callback, false cancel task with callback as CancelException
+     * @param tag 请求的tag
      */
-    public void cancelRequest(String tag, boolean force) {
-        if (tag == null || "".equals(tag.trim())) {
+    public void cancel(String tag) {
+        if (TextUtils.isEmpty(tag))
             return;
-        }
         if (mCachedRequest.containsKey(tag)) {
             ArrayList<Request> requests = mCachedRequest.remove(tag);
             for (Request request : requests) {
                 if (!request.isCompleted && !request.isCancelled) {
-                    request.cancel(force);
+                    request.cancel(true);
                 }
             }
         }

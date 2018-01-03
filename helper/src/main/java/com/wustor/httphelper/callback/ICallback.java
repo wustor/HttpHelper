@@ -1,7 +1,7 @@
-package com.wustor.httphelper.itf;
+package com.wustor.httphelper.callback;
 
 
-import com.wustor.httphelper.error.AppException;
+import com.wustor.httphelper.AppException;
 
 import java.net.HttpURLConnection;
 
@@ -25,7 +25,7 @@ public interface ICallback<T> {
      */
     T preRequest();
 
-    T parse(HttpURLConnection connection, OnProgressUpdatedListener listener) throws AppException;
+    T parse(HttpURLConnection connection, ProgressListener listener) throws AppException;
 
     T parse(HttpURLConnection connection) throws AppException;
 

@@ -1,8 +1,7 @@
 package com.wustor.httphelper.callback;
 
 
-import com.wustor.httphelper.core.AbstractCallback;
-import com.wustor.httphelper.error.AppException;
+import com.wustor.httphelper.AppException;
 
 public abstract class FileCallback extends AbstractCallback<String> {
 

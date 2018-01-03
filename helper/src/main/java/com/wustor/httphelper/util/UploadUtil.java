@@ -1,9 +1,9 @@
-package com.wustor.httphelper.upload;
+package com.wustor.httphelper.util;
 
 
-import com.wustor.httphelper.entities.FileEntity;
-import com.wustor.httphelper.error.AppException;
-import com.wustor.httphelper.itf.OnProgressUpdatedListener;
+import com.wustor.httphelper.FileEntity;
+import com.wustor.httphelper.AppException;
+import com.wustor.httphelper.callback.ProgressListener;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -101,7 +101,7 @@ public class UploadUtil {
      * @param postContent
      * @param entities
      */
-    public static void upload(OutputStream out, String postContent, ArrayList<FileEntity> entities, OnProgressUpdatedListener listener) throws AppException {
+    public static void upload(OutputStream out, String postContent, ArrayList<FileEntity> entities, ProgressListener listener) throws AppException {
         String BOUNDARY = "7d4a6d158c9"; // 数据分隔线
         String PREFIX = "--", LINEND = "\r\n";
         String CHARSET = "UTF-8";

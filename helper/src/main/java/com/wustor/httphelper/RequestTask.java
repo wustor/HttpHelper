@@ -1,15 +1,15 @@
-package com.wustor.httphelper.core;
+package com.wustor.httphelper;
 
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import com.wustor.httphelper.Request;
-import com.wustor.httphelper.error.AppException;
-import com.wustor.httphelper.itf.OnProgressUpdatedListener;
-import com.wustor.httphelper.utils.HintUtils;
+import com.wustor.httphelper.callback.ProgressListener;
+import com.wustor.httphelper.util.HintUtils;
+import com.wustor.httphelper.util.OKHttpUtil;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 
 
@@ -30,24 +30,21 @@ public class RequestTask implements Runnable {
         try {
 //                FIXME: for HttpUrlConnection
             HttpURLConnection connection = null;
-            if (request.tool == Request.RequestTool.URLCONNECTION) {
-                connection = HttpUrlConnectionUtil.execute(request, !request.enableProgressUpdated ? null : new OnProgressUpdatedListener() {
-                    @Override
-                    public void onProgressUpdated(int curLen, int totalLen) {
-                        onProgressUpdate(Request.STATE_UPLOAD, curLen, totalLen);
-                    }
-                });
-            } else {
-//                FIXME : for OkHttpUrlConnection request
-                connection = OKHttpUrlConnectionUtil.execute(request, !request.enableProgressUpdated ? null : new OnProgressUpdatedListener() {
-                    @Override
-                    public void onProgressUpdated(int curLen, int totalLen) {
-                        onProgressUpdate(Request.STATE_UPLOAD, curLen, totalLen);
-                    }
-                });
+            connection = OKHttpUtil.execute(request, !request.enableProgressUpdated ? null : new ProgressListener() {
+                @Override
+                public void onProgressUpdated(int curLen, int totalLen) {
+                    onProgressUpdate(Request.STATE_UPLOAD, curLen, totalLen);
+                }
+            });
+            if (connection != null) {
+                try {
+                    int responseCode = connection.getResponseCode();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
             if (request.isDownLoad()) {
-                return request.iCallback.parse(connection, new OnProgressUpdatedListener() {
+                return request.iCallback.parse(connection, new ProgressListener() {
                     @Override
                     public void onProgressUpdated(int curLen, int totalLen) {
                         onProgressUpdate(Request.STATE_DOWNLOAD, curLen, totalLen);
@@ -92,6 +89,7 @@ public class RequestTask implements Runnable {
                 });
             } else {
                 final Object o1 = request(0);
+
                 handler.post(new Runnable() {
                     @Override
                     public void run() {

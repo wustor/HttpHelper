@@ -3,9 +3,9 @@ def cfg = rootProject.ext.android
 def librarys = rootProject.ext.Dependencies
 
 android {
+
     compileSdkVersion cfg.compileSdkVersion
     buildToolsVersion cfg.buildToolsVersion
-    enforceUniquePackageName = false
     defaultConfig {
         applicationId cfg.applicationId
         minSdkVersion cfg.minSdkVersion
@@ -20,14 +20,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
 }
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile librarys["V7"]
-    compile librarys["constraint"]
-    compile librarys["junit"]
-    compile librarys["test"]
-    compile librarys["espresso"]
+    librarys.each { k, v -> compile v }
     compile project(':helper')
 }

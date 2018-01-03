@@ -1,11 +1,9 @@
-package com.wustor.httphelper.core;
+package com.wustor.httphelper.callback;
 
 
 import android.util.Log;
 
-import com.wustor.httphelper.error.AppException;
-import com.wustor.httphelper.itf.ICallback;
-import com.wustor.httphelper.itf.OnProgressUpdatedListener;
+import com.wustor.httphelper.AppException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -27,7 +25,7 @@ public abstract class AbstractCallback<T> implements ICallback<T> {
     }
 
     @Override
-    public T parse(HttpURLConnection connection, OnProgressUpdatedListener listener) throws AppException {
+    public T parse(HttpURLConnection connection, ProgressListener listener) throws AppException {
         try {
             checkIfCancelled();
             InputStream is = null;

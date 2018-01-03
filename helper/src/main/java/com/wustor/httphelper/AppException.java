@@ -1,4 +1,4 @@
-package com.wustor.httphelper.error;
+package com.wustor.httphelper;
 
 public class AppException extends Exception {
 
