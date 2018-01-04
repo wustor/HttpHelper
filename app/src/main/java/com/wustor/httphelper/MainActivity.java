@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(AppException e) {
+                
                 Log.d("d---->",e.toString());
 
             }
