@@ -19,7 +19,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class HttpHelper {
     private ThreadPoolExecutor executor;
     private volatile static HttpHelper httpHelper;
-    private HashMap<String, ArrayList<Request>> mCachedRequest;
+    private HashMap<String, ArrayList<RequestManager>> mCachedRequest;
 
     private HttpHelper() {
         mCachedRequest = new HashMap<>();
@@ -39,23 +39,26 @@ public class HttpHelper {
     }
 
 
-    public void performRequest(Context context, Request request) {
-        request.execute(context, executor);
-        HintUtils.showDialog(context,"");
-        if (!mCachedRequest.containsKey(request.tag)) {
-            ArrayList<Request> requests = new ArrayList<>();
-            mCachedRequest.put(request.tag, requests);
+    public void execute(Context context, RequestManager requestManager) {
+        requestManager.execute(context, executor);
+        HintUtils.showDialog(context, "");
+        if (!mCachedRequest.containsKey(requestManager.tag)) {
+            ArrayList<RequestManager> requestManagers = new ArrayList<>();
+            mCachedRequest.put(requestManager.tag, requestManagers);
         }
-        mCachedRequest.get(request.tag).add(request);
+        mCachedRequest.get(requestManager.tag).add(requestManager);
     }
 
-    public void performRequest(Context context, Request request, boolean isShow) {
-        request.execute(context, executor, isShow);
-        if (!mCachedRequest.containsKey(request.tag)) {
-            ArrayList<Request> requests = new ArrayList<>();
-            mCachedRequest.put(request.tag, requests);
+    public void execute(Context context, RequestManager requestManager, boolean isShow) {
+        if (isShow)
+            HintUtils.showDialog(context, "");
+        requestManager.execute(context, executor);
+
+        if (!mCachedRequest.containsKey(requestManager.tag)) {
+            ArrayList<RequestManager> requestManagers = new ArrayList<>();
+            mCachedRequest.put(requestManager.tag, requestManagers);
         }
-        mCachedRequest.get(request.tag).add(request);
+        mCachedRequest.get(requestManager.tag).add(requestManager);
     }
 
     /**
@@ -65,10 +68,10 @@ public class HttpHelper {
         if (TextUtils.isEmpty(tag))
             return;
         if (mCachedRequest.containsKey(tag)) {
-            ArrayList<Request> requests = mCachedRequest.remove(tag);
-            for (Request request : requests) {
-                if (!request.isCompleted && !request.isCancelled) {
-                    request.cancel(true);
+            ArrayList<RequestManager> requestManagers = mCachedRequest.remove(tag);
+            for (RequestManager requestManager : requestManagers) {
+                if (!requestManager.isCompleted && !requestManager.isCancelled) {
+                    requestManager.cancel(true);
                 }
             }
         }
@@ -76,11 +79,11 @@ public class HttpHelper {
     }
 
     public void cancelAll() {
-        for (Map.Entry<String, ArrayList<Request>> entry : mCachedRequest.entrySet()) {
-            ArrayList<Request> requests = entry.getValue();
-            for (Request request : requests) {
-                if (!request.isCompleted && !request.isCancelled) {
-                    request.cancel(true);
+        for (Map.Entry<String, ArrayList<RequestManager>> entry : mCachedRequest.entrySet()) {
+            ArrayList<RequestManager> requestManagers = entry.getValue();
+            for (RequestManager requestManager : requestManagers) {
+                if (!requestManager.isCompleted && !requestManager.isCancelled) {
+                    requestManager.cancel(true);
                 }
             }
         }

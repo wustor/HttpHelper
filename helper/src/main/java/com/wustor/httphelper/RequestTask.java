@@ -16,13 +16,13 @@ import java.net.HttpURLConnection;
 public class RequestTask implements Runnable {
     //切换线程的handler
     private Handler handler = new Handler(Looper.getMainLooper());
-    private Request request;
+    private RequestManager requestManager;
 
 
 
-    public RequestTask(Request request, Context context) {
-        this.request = request;
-        request.setContext(context);
+    public RequestTask(RequestManager requestManager, Context context) {
+        this.requestManager = requestManager;
+        requestManager.setContext(context);
     }
 
     //上传或者下载
@@ -30,10 +30,10 @@ public class RequestTask implements Runnable {
         try {
 //                FIXME: for HttpUrlConnection
             HttpURLConnection connection = null;
-            connection = OKHttpUtil.execute(request, !request.enableProgressUpdated ? null : new ProgressListener() {
+            connection = OKHttpUtil.execute(requestManager, !requestManager.enableProgressUpdated ? null : new ProgressListener() {
                 @Override
                 public void onProgressUpdated(int curLen, int totalLen) {
-                    onProgressUpdate(Request.STATE_UPLOAD, curLen, totalLen);
+                    onProgressUpdate(RequestManager.STATE_UPLOAD, curLen, totalLen);
                 }
             });
             if (connection != null) {
@@ -43,20 +43,20 @@ public class RequestTask implements Runnable {
                     e.printStackTrace();
                 }
             }
-            if (request.isDownLoad()) {
-                return request.iCallback.parse(connection, new ProgressListener() {
+            if (requestManager.isDownLoad()) {
+                return requestManager.iCallback.parse(connection, new ProgressListener() {
                     @Override
                     public void onProgressUpdated(int curLen, int totalLen) {
-                        onProgressUpdate(Request.STATE_DOWNLOAD, curLen, totalLen);
+                        onProgressUpdate(RequestManager.STATE_DOWNLOAD, curLen, totalLen);
                     }
                 });
             } else {
-                return request.iCallback.parse(connection);
+                return requestManager.iCallback.parse(connection);
             }
         } catch (AppException e) {
             Log.d("error--->", e.getMessage());
             if (e.type == AppException.ErrorType.TIMEOUT) {
-                if (retry < request.maxCount) {
+                if (retry < requestManager.maxCount) {
                     retry++;
                     return request(retry);
                 }
@@ -68,23 +68,23 @@ public class RequestTask implements Runnable {
 
     //上传或者下载的进度回调
     private void onProgressUpdate(Integer... values) {
-        request.iCallback.onProgressUpdated(values[0], values[1], values[2]);
+        requestManager.iCallback.onProgressUpdated(values[0], values[1], values[2]);
     }
 
 
     @Override
     public void run() {
-        if (request.iCallback != null) {
-            final Object o = request.iCallback.preRequest();
+        if (requestManager.iCallback != null) {
+            final Object o = requestManager.iCallback.preRequest();
             if (o != null) {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
                         HintUtils.closeDialog();
                         if (o instanceof AppException)
-                            request.iCallback.onFailure((AppException) o);
+                            requestManager.iCallback.onFailure((AppException) o);
                         else
-                            request.iCallback.onSuccess(o);
+                            requestManager.iCallback.onSuccess(o);
                     }
                 });
             } else {
@@ -95,9 +95,9 @@ public class RequestTask implements Runnable {
                     public void run() {
                         HintUtils.closeDialog();
                         if (o1 instanceof AppException)
-                            request.iCallback.onFailure((AppException) o1);
+                            requestManager.iCallback.onFailure((AppException) o1);
                         else
-                            request.iCallback.onSuccess(o1);
+                            requestManager.iCallback.onSuccess(o1);
 
                     }
                 });

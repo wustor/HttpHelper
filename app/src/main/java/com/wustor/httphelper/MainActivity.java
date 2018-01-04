@@ -16,21 +16,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initRequest() {
-        String url="http://gank.io/api/search/query/listview/category/Android/count/10/page/1";
-        final Request request = new Request(url, null, Request.RequestMethod.GET);
-        request.setCallback(new StringCallback() {
+        String url = "http://gank.io/api/search/query/listview/category/Android/count/10/page/1";
+        RequestManager requestManager = new RequestManager(url, null, RequestManager.RequestMethod.GET);
+        requestManager.setCallback(new StringCallback() {
             @Override
             public void onSuccess(String result) {
-                Log.d("d---->",result);
+                Log.d("d---->", result);
             }
 
             @Override
             public void onFailure(AppException e) {
-                Log.d("d---->",e.toString());
+                Log.d("d---->", e.toString());
 
             }
         });
 
-        HttpHelper.getInstance().performRequest(this, request);//发起请求
+        HttpHelper.getInstance().execute(this, requestManager);//发起请求
     }
 }

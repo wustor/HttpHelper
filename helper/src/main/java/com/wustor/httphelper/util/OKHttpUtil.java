@@ -5,7 +5,7 @@ import android.webkit.URLUtil;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.OkUrlFactory;
 import com.wustor.httphelper.AppException;
-import com.wustor.httphelper.Request;
+import com.wustor.httphelper.RequestManager;
 import com.wustor.httphelper.callback.ProgressListener;
 
 import java.io.IOException;
@@ -21,20 +21,20 @@ import java.util.Map;
 public class OKHttpUtil {
     private static OkHttpClient mClient;
 
-    public synchronized static HttpURLConnection execute(Request request, ProgressListener listener) throws AppException {
-        if (!URLUtil.isNetworkUrl(request.url)) {
-            throw new AppException(AppException.ErrorType.MANUAL,"the url :" + request.url + " is not valid");
+    public synchronized static HttpURLConnection execute(RequestManager requestManager, ProgressListener listener) throws AppException {
+        if (!URLUtil.isNetworkUrl(requestManager.url)) {
+            throw new AppException(AppException.ErrorType.MANUAL,"the url :" + requestManager.url + " is not valid");
         }
         if (mClient == null){
             initializeOkHttp();
         }
-        switch (request.method) {
+        switch (requestManager.method) {
             case GET:
             case DELETE:
-                return get(request);
+                return get(requestManager);
             case POST:
             case PUT:
-                return post(request,listener);
+                return post(requestManager,listener);
         }
 
         return null;
@@ -45,15 +45,15 @@ public class OKHttpUtil {
     }
 
 
-    private static HttpURLConnection get(Request request) throws AppException {
+    private static HttpURLConnection get(RequestManager requestManager) throws AppException {
         try {
-            request.checkIfCancelled();
-            HttpURLConnection connection = new OkUrlFactory(mClient).open(new URL(request.url));
-            connection.setRequestMethod(request.method.name());
+            requestManager.checkIfCancelled();
+            HttpURLConnection connection = new OkUrlFactory(mClient).open(new URL(requestManager.url));
+            connection.setRequestMethod(requestManager.method.name());
             connection.setConnectTimeout(15 * 3000);
             connection.setReadTimeout(15 * 3000);
-            addHeader(connection, request.headers);
-            request.checkIfCancelled();
+            addHeader(connection, requestManager.headers);
+            requestManager.checkIfCancelled();
             return connection;
         } catch (MalformedURLException e) {
             throw new AppException(AppException.ErrorType.SERVER, e.getMessage());
@@ -63,34 +63,34 @@ public class OKHttpUtil {
     }
 
 
-    private static HttpURLConnection post(Request request,ProgressListener listener) throws AppException {
+    private static HttpURLConnection post(RequestManager requestManager, ProgressListener listener) throws AppException {
         HttpURLConnection connection = null;
         OutputStream os = null;
         try {
-            request.checkIfCancelled();
+            requestManager.checkIfCancelled();
 
-            connection = new OkUrlFactory(mClient).open(new URL(request.url));
-            connection.setRequestMethod(request.method.name());
+            connection = new OkUrlFactory(mClient).open(new URL(requestManager.url));
+            connection.setRequestMethod(requestManager.method.name());
             connection.setConnectTimeout(15 * 3000);
             connection.setReadTimeout(15 * 3000);
             connection.setDoOutput(true);
 
 
-            addHeader(connection, request.headers);
-            request.checkIfCancelled();
+            addHeader(connection, requestManager.headers);
+            requestManager.checkIfCancelled();
 
              os = connection.getOutputStream();
-            if (request.filePath != null){
-                UploadUtil.upload(os, request.filePath);
-            }else if(request.fileEntities != null){
-                UploadUtil.upload(os,request.content,request.fileEntities,listener);
-            }else if(request.content != null){
-                os.write(request.content.getBytes());
+            if (requestManager.filePath != null){
+                UploadUtil.upload(os, requestManager.filePath);
+            }else if(requestManager.fileEntities != null){
+                UploadUtil.upload(os, requestManager.content, requestManager.fileEntities,listener);
+            }else if(requestManager.content != null){
+                os.write(requestManager.content.getBytes());
             }else {
-                throw new AppException(AppException.ErrorType.MANUAL,"the post request has no post content");
+                throw new AppException(AppException.ErrorType.MANUAL,"the post requestManager has no post content");
             }
 
-            request.checkIfCancelled();
+            requestManager.checkIfCancelled();
         } catch (InterruptedIOException e) {
             throw new AppException(AppException.ErrorType.TIMEOUT, e.getMessage());
         } catch (IOException e) {

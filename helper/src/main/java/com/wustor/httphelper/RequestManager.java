@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
-public class Request {
+public class RequestManager {
     public String tag;
     private Future mFuture;
     public String filePath;
@@ -57,11 +57,6 @@ public class Request {
 
     }
 
-    public void execute(Context context, ThreadPoolExecutor executor, boolean isShow) {
-        task = new RequestTask(this, context);
-        mFuture = executor.submit(task);
-
-    }
 
     public boolean isEnableProgressUpdated() {
         return enableProgressUpdated;
@@ -76,10 +71,9 @@ public class Request {
 
     public enum RequestMethod {GET, POST, PUT, DELETE}
 
-    public enum RequestTool {OKHTTP, URLCONNECTION}
 
-    public int maxRetryCount = 0;
-    public int maxCount = 0;
+    public int maxRetryCount = 3;
+    public int maxCount = 3;
     public String url;
     public String content = "";
     public Map<String, String> headers;
@@ -91,7 +85,7 @@ public class Request {
     /**
      * @param url 请求的url
      */
-    public Request(String url) {
+    public RequestManager(String url) {
         this.url = url;
         this.method = RequestMethod.POST;
         initParaMap(null);
@@ -102,7 +96,7 @@ public class Request {
      * @param url     请求url
      * @param paraMap 请求参数
      */
-    public Request(String url, HashMap<String, String> paraMap) {
+    public RequestManager(String url, HashMap<String, String> paraMap) {
         this.url = url;
         this.paraMap = paraMap;
         this.method = RequestMethod.POST;
@@ -114,7 +108,7 @@ public class Request {
      * @param paraMap 请求参数
      * @param method  请求方式
      */
-    public Request(String url, HashMap<String, String> paraMap, RequestMethod method) {
+    public RequestManager(String url, HashMap<String, String> paraMap, RequestMethod method) {
         this.url = url;
         this.paraMap = paraMap;
         this.method = method;
