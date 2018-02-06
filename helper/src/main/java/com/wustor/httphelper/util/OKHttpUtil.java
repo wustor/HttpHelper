@@ -23,9 +23,9 @@ public class OKHttpUtil {
 
     public synchronized static HttpURLConnection execute(RequestManager requestManager, ProgressListener listener) throws AppException {
         if (!URLUtil.isNetworkUrl(requestManager.url)) {
-            throw new AppException(AppException.ErrorType.MANUAL,"the url :" + requestManager.url + " is not valid");
+            throw new AppException(AppException.ErrorType.MANUAL, "the url :" + requestManager.url + " is not valid");
         }
-        if (mClient == null){
+        if (mClient == null) {
             initializeOkHttp();
         }
         switch (requestManager.method) {
@@ -34,7 +34,7 @@ public class OKHttpUtil {
                 return get(requestManager);
             case POST:
             case PUT:
-                return post(requestManager,listener);
+                return post(requestManager, listener);
         }
 
         return null;
@@ -79,15 +79,15 @@ public class OKHttpUtil {
             addHeader(connection, requestManager.headers);
             requestManager.checkIfCancelled();
 
-             os = connection.getOutputStream();
-            if (requestManager.filePath != null){
+            os = connection.getOutputStream();
+            if (requestManager.filePath != null) {
                 UploadUtil.upload(os, requestManager.filePath);
-            }else if(requestManager.fileEntities != null){
-                UploadUtil.upload(os, requestManager.content, requestManager.fileEntities,listener);
-            }else if(requestManager.content != null){
+            } else if (requestManager.fileEntities != null) {
+                UploadUtil.upload(os, requestManager.content, requestManager.fileEntities, listener);
+            } else if (requestManager.content != null) {
                 os.write(requestManager.content.getBytes());
-            }else {
-                throw new AppException(AppException.ErrorType.MANUAL,"the post requestManager has no post content");
+            } else {
+                throw new AppException(AppException.ErrorType.MANUAL, "the post requestManager has no post content");
             }
 
             requestManager.checkIfCancelled();
@@ -95,7 +95,7 @@ public class OKHttpUtil {
             throw new AppException(AppException.ErrorType.TIMEOUT, e.getMessage());
         } catch (IOException e) {
             throw new AppException(AppException.ErrorType.SERVER, e.getMessage());
-        }finally {
+        } finally {
             try {
                 os.flush();
                 os.close();
@@ -107,7 +107,7 @@ public class OKHttpUtil {
         return connection;
     }
 
-    private static void addHeader(HttpURLConnection connection, Map<String, String> headers) {
+    private static void addHeader(HttpURLConnection connection, android.support.v4.util.ArrayMap<String, String> headers) {
         if (headers == null || headers.size() == 0)
             return;
 

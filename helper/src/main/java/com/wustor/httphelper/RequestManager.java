@@ -6,7 +6,6 @@ import android.util.Log;
 import com.wustor.httphelper.callback.ICallback;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -71,13 +70,11 @@ public class RequestManager {
 
     public enum RequestMethod {GET, POST, PUT, DELETE}
 
-
-    public int maxRetryCount = 3;
     public int maxCount = 3;
     public String url;
     public String content = "";
-    public Map<String, String> headers;
-    public HashMap<String, String> paraMap;
+    public android.support.v4.util.ArrayMap<String, String> headers;
+    public android.support.v4.util.ArrayMap<String, String> paraMap;
     public RequestMethod method = RequestMethod.POST;
     public volatile boolean isCancelled;
 
@@ -96,7 +93,7 @@ public class RequestManager {
      * @param url     请求url
      * @param paraMap 请求参数
      */
-    public RequestManager(String url, HashMap<String, String> paraMap) {
+    public RequestManager(String url, android.support.v4.util.ArrayMap<String, String> paraMap) {
         this.url = url;
         this.paraMap = paraMap;
         this.method = RequestMethod.POST;
@@ -108,7 +105,7 @@ public class RequestManager {
      * @param paraMap 请求参数
      * @param method  请求方式
      */
-    public RequestManager(String url, HashMap<String, String> paraMap, RequestMethod method) {
+    public RequestManager(String url, android.support.v4.util.ArrayMap<String, String> paraMap, RequestMethod method) {
         this.url = url;
         this.paraMap = paraMap;
         this.method = method;
@@ -121,7 +118,7 @@ public class RequestManager {
      */
     public void addHeader(String key, String value) {
         if (headers == null) {
-            headers = new HashMap<>();
+            headers = new android.support.v4.util.ArrayMap<>();
         }
         headers.put(key, value);
     }
@@ -129,7 +126,7 @@ public class RequestManager {
     /**
      * @param paramMap 初始化Map参数
      */
-    private void initParaMap(HashMap<String, String> paramMap) {
+    private void initParaMap(android.support.v4.util.ArrayMap<String, String> paramMap) {
         if (paramMap != null && !paramMap.isEmpty()) {
             StringBuilder sb = new StringBuilder();
             for (Map.Entry<String, String> entry : paramMap.entrySet()) {
@@ -150,7 +147,7 @@ public class RequestManager {
         mContext = context;
     }
 
-    public HashMap<String, String> getParaMap() {
+    public android.support.v4.util.ArrayMap<String, String> getParaMap() {
         return paraMap;
     }
 

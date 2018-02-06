@@ -1,13 +1,13 @@
 package com.wustor.httphelper;
 
 import android.content.Context;
+import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
 import com.wustor.httphelper.util.ExecutorUtil;
 import com.wustor.httphelper.util.HintUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -19,10 +19,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class HttpHelper {
     private ThreadPoolExecutor executor;
     private volatile static HttpHelper httpHelper;
-    private HashMap<String, ArrayList<RequestManager>> mCachedRequest;
+    private ArrayMap<String, ArrayList<RequestManager>> mCachedRequest;
 
     private HttpHelper() {
-        mCachedRequest = new HashMap<>();
+        mCachedRequest = new ArrayMap<>();
         if (executor == null) {
             executor = ExecutorUtil.createThreadPool();
         }
