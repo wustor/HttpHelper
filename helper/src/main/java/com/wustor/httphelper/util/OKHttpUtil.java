@@ -5,6 +5,7 @@ import android.webkit.URLUtil;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.OkUrlFactory;
 import com.wustor.httphelper.AppException;
+import com.wustor.httphelper.NullHostNameVerifier;
 import com.wustor.httphelper.RequestManager;
 import com.wustor.httphelper.callback.ProgressListener;
 
@@ -15,7 +16,16 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.Map;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 
 public class OKHttpUtil {
@@ -41,7 +51,35 @@ public class OKHttpUtil {
     }
 
     private static void initializeOkHttp() {
-        mClient = new OkHttpClient();
+        TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {
+                    @Override
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return new X509Certificate[0];
+                    }
+
+                    @Override
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                    }
+
+                    @Override
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                    }
+
+
+                }};
+
+        try {
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new SecureRandom());
+            mClient = new OkHttpClient();
+            mClient.setSslSocketFactory(sc.getSocketFactory());
+            mClient.setHostnameVerifier(new NullHostNameVerifier());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -68,16 +106,24 @@ public class OKHttpUtil {
         OutputStream os = null;
         try {
             requestManager.checkIfCancelled();
-
             connection = new OkUrlFactory(mClient).open(new URL(requestManager.url));
+            if (connection instanceof HttpsURLConnection) {
+                HttpsURLConnection httpsURLConnection = (HttpsURLConnection) connection;
+                httpsURLConnection.setHostnameVerifier(new HostnameVerifier() {
+                    @Override
+                    public boolean verify(String hostname, SSLSession session) {
+                        return true;
+                    }
+                });
+            }
             connection.setRequestMethod(requestManager.method.name());
             connection.setConnectTimeout(15 * 3000);
             connection.setReadTimeout(15 * 3000);
             connection.setDoOutput(true);
 
-
             addHeader(connection, requestManager.headers);
             requestManager.checkIfCancelled();
+
 
             os = connection.getOutputStream();
             if (requestManager.filePath != null) {

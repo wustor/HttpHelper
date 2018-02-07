@@ -53,7 +53,6 @@ public class HttpHelper {
         if (isShow)
             HintUtils.showDialog(context, "");
         requestManager.execute(context, executor);
-
         if (!mCachedRequest.containsKey(requestManager.tag)) {
             ArrayList<RequestManager> requestManagers = new ArrayList<>();
             mCachedRequest.put(requestManager.tag, requestManagers);

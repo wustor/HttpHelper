@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initRequest() {
-        String url = "http://gank.io/api/search/query/listview/category/Android/count/10/page/1";
+        String url = "https://10.16.17.43:9002/Interface/getGuidePage";
         RequestManager requestManager = new RequestManager(url);
         requestManager.setCallback(new StringCallback() {
             @Override
@@ -33,4 +33,6 @@ public class MainActivity extends AppCompatActivity {
 
         HttpHelper.getInstance().execute(this, requestManager);//发起请求
     }
+
+
 }

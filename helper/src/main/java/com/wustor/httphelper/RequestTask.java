@@ -27,7 +27,6 @@ public class RequestTask implements Runnable {
     //上传或者下载
     public Object request(int retry) {
         try {
-//                FIXME: for HttpUrlConnection
             HttpURLConnection connection = null;
             connection = OKHttpUtil.execute(requestManager, !requestManager.enableProgressUpdated ? null : new ProgressListener() {
                 @Override

@@ -110,7 +110,7 @@ public class RequestManager {
         mContext = context;
     }
 
-    public android.support.v4.util.ArrayMap<String, String> getParaMap() {
+    public ArrayMap<String, String> getParaMap() {
         return paraMap;
     }
 
