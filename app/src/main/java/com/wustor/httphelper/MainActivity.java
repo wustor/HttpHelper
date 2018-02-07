@@ -16,6 +16,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         tvResult = (TextView) findViewById(R.id.tv_response);
+        initHeader();
+    }
+
+    private void initHeader() {
+        RequestManager.globalHeaders.put("version","1.2.3");
+        RequestManager.globalHeaders.put("applicationType","ANDROID");
     }
 
 
@@ -39,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void testPost(View view) {
-        String url = "https://10.16.17.43:9002/Interface/getGuidePage";
+        String url = "https://10.16.17.43:9002/UserInterface/getAppConfigInfo";
         RequestManager requestManager = new RequestManager(url);
         requestManager.setCallback(new StringCallback() {
             @Override

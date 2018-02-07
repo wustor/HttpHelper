@@ -35,6 +35,7 @@ public class RequestManager {
     public ArrayMap<String, String> headers;
     private ArrayMap<String, String> paraMap;
     public RequestMethod method = RequestMethod.POST;
+    public static ArrayMap<String, String> globalHeaders=new ArrayMap<>();
 
 
     /**
@@ -73,7 +74,7 @@ public class RequestManager {
      */
     public void addHeader(String key, String value) {
         if (headers == null) {
-            headers = new android.support.v4.util.ArrayMap<>();
+            headers = new ArrayMap<>();
         }
         headers.put(key, value);
     }

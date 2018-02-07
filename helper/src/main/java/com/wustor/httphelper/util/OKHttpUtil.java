@@ -1,5 +1,6 @@
 package com.wustor.httphelper.util;
 
+import android.support.v4.util.ArrayMap;
 import android.webkit.URLUtil;
 
 import com.squareup.okhttp.OkHttpClient;
@@ -153,10 +154,15 @@ public class OKHttpUtil {
         return connection;
     }
 
-    private static void addHeader(HttpURLConnection connection, android.support.v4.util.ArrayMap<String, String> headers) {
+    private static void addHeader(HttpURLConnection connection, ArrayMap<String, String> headers) {
+        //全局header
+        for (Map.Entry<String, String> entry : RequestManager.globalHeaders.entrySet()) {
+            connection.addRequestProperty(entry.getKey(), entry.getValue());
+        }
+
         if (headers == null || headers.size() == 0)
             return;
-
+        //自定义Header
         for (Map.Entry<String, String> entry : headers.entrySet()) {
             connection.addRequestProperty(entry.getKey(), entry.getValue());
         }
