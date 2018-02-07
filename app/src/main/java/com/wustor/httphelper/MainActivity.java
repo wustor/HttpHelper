@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initRequest() {
         String url = "http://gank.io/api/search/query/listview/category/Android/count/10/page/1";
-        RequestManager requestManager = new RequestManager(url, null, RequestManager.RequestMethod.GET);
+        RequestManager requestManager = new RequestManager(url);
         requestManager.setCallback(new StringCallback() {
             @Override
             public void onSuccess(String result) {

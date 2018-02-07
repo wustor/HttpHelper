@@ -19,7 +19,6 @@ public class RequestTask implements Runnable {
     private RequestManager requestManager;
 
 
-
     public RequestTask(RequestManager requestManager, Context context) {
         this.requestManager = requestManager;
         requestManager.setContext(context);
@@ -38,7 +37,7 @@ public class RequestTask implements Runnable {
             });
             if (connection != null) {
                 try {
-                    int responseCode = connection.getResponseCode();
+                    connection.getResponseCode();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
